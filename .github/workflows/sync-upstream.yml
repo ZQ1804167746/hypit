@@ -1,0 +1,53 @@
+name: Sync upstream
+
+# 定时把上游 hypit-ai/hypit 的 main 合并进本 fork 的 main。
+# 走 GitHub 的 merge-upstream API：服务端直接合并，不需要 checkout 代码，
+# 也绕开了 GITHUB_TOKEN 不能推送 .github/workflows/ 的限制。
+# 调频率改下面的 cron 即可；也可在 Actions 页面点 Run workflow 手动同步。
+
+on:
+  schedule:
+    # UTC 18:30 = 北京时间次日 02:30，每天一次
+    - cron: "30 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge upstream into main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: main
+        run: |
+          set -euo pipefail
+          if ! out=$(gh api --method POST "repos/${GITHUB_REPOSITORY}/merge-upstream" -f "branch=${BRANCH}" 2>&1); then
+            echo "$out"
+            {
+              echo "### ❌ 同步失败"
+              echo ""
+              echo '```'
+              echo "$out"
+              echo '```'
+              echo ""
+              echo "多半是与上游起了冲突，需要本地手工合并后推送。"
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          merge_type=$(jq -r '.merge_type' <<<"$out")
+          message=$(jq -r '.message' <<<"$out")
+          echo "merge_type=${merge_type} :: ${message}"
+          {
+            echo "### ✅ ${BRANCH} 同步完成"
+            echo ""
+            echo "- 合并方式：\`${merge_type}\`（none = 本来就是最新）"
+            echo "- 上游：https://github.com/hypit-ai/hypit"
+            echo "- 结果：${message}"
+          } >> "$GITHUB_STEP_SUMMARY"
