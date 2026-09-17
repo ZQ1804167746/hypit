@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { realpath } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import test from "node:test";
 
@@ -25,6 +27,7 @@ function controller(
       down: async () => worker,
     },
     programs: {
+      prepare: async (options) => { calls.push(`prepare ${path} ${JSON.stringify(options)}`); return { dataRoot: "/tmp", programs: reports }; },
       up: async (options) => {
         calls.push(`up ${path} ${JSON.stringify(options)}`);
         return { dataRoot: "/tmp", programs: reports };
@@ -62,10 +65,10 @@ test("programs dispatches lifecycle through the selected Runtime Controller", as
   ]);
 });
 
-test("programs accepts only up, down and status", async () => {
+test("programs accepts prepare, up, down and status", async () => {
   await assert.rejects(
     runCli(["programs", "restart", "/p/hypit.runtime.json"], io, distribution([])),
-    /programs takes up, down or status/u,
+    /programs takes prepare, up, down or status/u,
   );
 });
 
@@ -344,11 +347,18 @@ test("runtime status keeps scheduling phases out of the default view", async () 
 });
 
 test("Worker stop suggests Program control in the same project and Profile", async () => {
-  const projectRoot = resolve("/tmp");
+  const projectRoot = await realpath(tmpdir());
   const runtimeProfile = resolve("/tmp/a selected profile.json");
   let output = "";
   await runCli(["runtime", "down", "--workspace", projectRoot, "--runtime", runtimeProfile], {
     write(text) { output += text; },
   }, distribution([]));
   assert.ok(output.includes(commandHint(["programs", "down"], { projectRoot, runtimeProfile })));
+});
+
+
+test("programs prepare provisions resources through the controller without starting a worker", async () => {
+  const calls: string[] = [];
+  await runCli(["programs", "prepare", "/p/hypit.runtime.json", "--endpoint", "speech"], io, distribution(calls));
+  assert.deepEqual(calls, [`prepare ${resolve("/p/hypit.runtime.json")} {"endpoints":["speech"]}`]);
 });

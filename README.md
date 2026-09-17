@@ -137,7 +137,7 @@ The `/hypit` skill is available to coding agents. Start a session in any empty o
 directory and ask it to create videos for you:
 
 ```text
-/hypit Clone this video: /path/to/video
+/hypit Clone this video: /path/to/video.mp4, and replace the ranking content with a comparison of Hypit (official website: hypit.ai) with other AI video products.
 ```
 
 Or start without a reference video:
@@ -193,21 +193,61 @@ commands and the repository layout.
 <table>
   <tr>
     <td>Bug reports</td>
-    <td><a href="https://github.com/hypit-ai/hypit/issues/new?labels=bug">Open an issue</a></td>
+    <td><a href="https://github.com/hypit-ai/hypit/issues/new?template=bug_report.yml">Open an issue</a></td>
   </tr>
   <tr>
     <td>Feature requests</td>
-    <td><a href="https://github.com/hypit-ai/hypit/issues/new?labels=enhancement">Open an issue</a></td>
+    <td><a href="https://github.com/hypit-ai/hypit/issues/new?template=feature_request.yml">Open an issue</a></td>
   </tr>
   <tr>
     <td>Questions</td>
-    <td><a href="https://discord.gg/85hnyQnxpn">Discord</a> or <a href="https://t.me/hypit">Telegram</a></td>
+    <td><a href="https://discord.gg/85hnyQnxpn">Discord</a> or <a href="https://t.me/hypitai">Telegram</a></td>
+  </tr>
+</table>
+
+## Launch Partner
+
+<table>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://openagents.org/blog/posts/2026-09-08-pilot-user-program-zh-hypit"><img alt="OpenAgents" src="./docs/public/openagents.png" width="180"></a>
+    </td>
+    <td>OpenAgents Workspace is a product that helps you manage AI agents, allowing you to invoke agents running on any device (whether on a mobile phone or computer) anytime, anywhere. Agents can collaborate within the platform to help you complete tasks and boost efficiency. It currently supports integration with over 20 types of agents, including Claude, Codex, OpenClaw, and Hermes (<a href="https://openagents.org">https://openagents.org</a>)</td>
+  </tr>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://monid.ai?fpr=alvin-45480b">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="./docs/public/monid-logo-white.svg">
+          <img alt="Monid" src="./docs/public/monid-logo-blue.svg" width="150">
+        </picture>
+      </a>
+    </td>
+    <td>Monid is the OpenRouter for agent tools: one key, one wallet, hundreds of tools, billed per call. Hypit can route Seedance video, images, speech and word-level transcription to Monid.</td>
+  </tr>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://www.hiapi.ai"><img alt="HiAPI" src="./docs/public/hiapi.png" width="165"></a>
+    </td>
+    <td>HiAPI is a unified API platform for AI image, video, audio, and language models. Connect GPT Image 2.5, Seedance 2.0, Veo 3.1, Kling, Wan, and other popular models through one platform. Pay as you go with no monthly fee, with free trial credits available for new users.</td>
   </tr>
 </table>
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=hypit-ai/hypit&type=Date)](https://www.star-history.com/#hypit-ai/hypit&Date)
+<a href="https://www.star-history.com/?repos=hypit-ai%2Fhypit&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=hypit-ai/hypit&type=date&theme=dark&logscale&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=hypit-ai/hypit&type=date&logscale&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=hypit-ai/hypit&type=date&logscale&legend=top-left" />
+ </picture>
+</a>
+
+## Contributors
+
+<a href="https://github.com/hypit-ai/hypit/graphs/contributors">
+  <img alt="Contributors" src="https://contrib.rocks/image?repo=hypit-ai/hypit">
+</a>
 
 ## License
 

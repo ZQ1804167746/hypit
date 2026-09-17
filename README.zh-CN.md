@@ -29,7 +29,7 @@
 <p align="center">
   <a href="https://hypit.ai"><img alt="Visit our website" src="https://img.shields.io/badge/Visit%20our%20website-DF3C68?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjI1Ny4wMyAyODcuNDggNDg2Ljk0IDQyNi4wNCI%2BPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTczMy4wMDEsNDYyLjU5MmMtMTEuNDQtMTYuNTEtMzAuMjg1LTI2LjM0NC01MC4zNTMtMjYuMzQ0aC0xNzguNzA1Yy0yMy40OTMsMC00Ny42NzUsMTQuMjM0LTU2LjYyOCwzNS45NjdsLTU0LjA2NSwxNDUuMDUzYy04LjgsMjEuNTIzLTguNjg2LDQ2LjAxMSw0LjI0Nyw2NS4zNTIsMTIuOTksMTkuNDE4LDM3LjAzOCwzMC44OTcsNjAuMzk3LDMwLjg5N2gxNjQuNDljMjcuMDEzLDAsNTEuNDYzLTE2Ljk4OSw2MC45MTQtNDIuMjhsNTYuODAxLTE1Mi4yMjdjNy4wMjEtMTguODI1LDQuMzgxLTM5LjkwOC03LjA1OS01Ni4zOTl2LS4wMzhoLS4wMzh2LjAxOVpNNjMzLjk3OCw2NTIuODEzYy0xLjc5OCw0LjgyMS02LjQ4NSw4LjA3My0xMS42MzIsOC4wNzNoLTE1OS42NWMtOC4zMDMsMC0xMi43OC01LjM1Ny0xNC4zMjktNy42MzNzLTQuNzgzLTguNDc1LTEuNjA3LTE2LjE0N2w0NS42MjgtMTI2LjcyNWM0LjM4MS0xMi4xNDgsMTUuNDU4LTIwLjc5NiwyOC4zNTItMjEuNDY1LjYzMS0uMDM4LDEuMjgyLS4wMzgsMS45NTEtLjAzOGgxNDQuMjY5czIzLjkzMywyLjcxNywxNy43NzMsMjcuOTUxbC01MC43NTUsMTM2LjAwNGgwdi0uMDE5Wk0zNTYuMjUsNjIzLjEyMnMtNDIuNzc3LTIyLjE3My0zMy43ODYtNjIuNDgzbDU2Ljc2Mi0xNTcuMzE2YzkuMTQ1LTI1LjM0OSwzMy4yMTItNDIuMjYxLDYwLjE2OC00Mi4yNjFoMTgxLjc4NWMxMS45NTcsMCwyMy4xNDksNS43OTcsMzAuMDU1LDE1LjU3M2wyNi41NzMsMzcuNjVoLTIxNi4xMjVjLTE2LjY0NCwwLTMxLjU0NywxMC4zNS0zNy4zNDQsMjUuOTYxbC02OC4wODgsMTgyLjg5NWgwdi0uMDE5Wk0yOTIuMDY0LDU0OS41NDNzLTQyLjc5Ny0yMi4xNzMtMzMuNzg2LTYyLjQ4M2w1Ni43NjItMTU3LjMxNmM5LjE2NC0yNS4zNDksMzMuMjMxLTQyLjI2MSw2MC4xNjgtNDIuMjYxaDE3Mi4wMDljMTEuOTU3LDAsMjMuMTQ5LDUuNzk3LDMwLjA1NSwxNS41NzNsMjYuNTczLDM3LjY1aC0yMDYuMzExYy0xNi42NDQsMC0zMS41NDcsMTAuMzUtMzcuMzQ0LDI1Ljk2MWwtNjguMDg4LDE4Mi44OTVoLS4wMzh2LS4wMTlaIi8%2BPC9zdmc%2B"></a>
   <a href="https://discord.gg/85hnyQnxpn"><img alt="Join our Discord" src="https://img.shields.io/badge/Join%20our%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"></a>
-  <a href="https://t.me/hypit"><img alt="Join our Telegram" src="https://img.shields.io/badge/Join%20our%20Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white"></a>
+  <a href="https://t.me/hypitai"><img alt="Join our Telegram" src="https://img.shields.io/badge/Join%20our%20Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white"></a>
   <a href="https://x.com/hypitai"><img alt="Follow @hypitai on X" src="https://img.shields.io/badge/Follow%20%40hypitai-000000?style=for-the-badge&logo=x&logoColor=white"></a>
 </p>
 
@@ -136,7 +136,7 @@ HypiHub 是我们推荐的托管模型服务，也可以使用你自己的 API �
 编程 Agent 可以直接使用 `/hypit` skill。在任意空目录或现有项目目录中开启会话，让 Agent 为你创建视频：
 
 ```text
-/hypit 复刻这个视频：/path/to/video
+/hypit 复刻这个视频：/path/to/video.mp4，把排行榜内容换成 Hypit（官网：hypit.ai）与其他 AI 视频产品的对比。
 ```
 
 也可以不提供参考视频，直接从描述开始：
@@ -185,21 +185,65 @@ Agent 会检查环境，索要这条视频需要的凭据，生成素材并构�
 <table>
   <tr>
     <td>缺陷报告</td>
-    <td><a href="https://github.com/hypit-ai/hypit/issues/new?labels=bug">提交 issue</a></td>
+    <td><a href="https://github.com/hypit-ai/hypit/issues/new?template=bug_report.yml">提交 issue</a></td>
   </tr>
   <tr>
     <td>功能请求</td>
-    <td><a href="https://github.com/hypit-ai/hypit/issues/new?labels=enhancement">提交 issue</a></td>
+    <td><a href="https://github.com/hypit-ai/hypit/issues/new?template=feature_request.yml">提交 issue</a></td>
   </tr>
   <tr>
     <td>问题咨询</td>
-    <td><a href="https://discord.gg/85hnyQnxpn">Discord</a> 或 <a href="https://t.me/hypit">Telegram</a></td>
+    <td><a href="https://discord.gg/85hnyQnxpn">Discord</a> 或 <a href="https://t.me/hypitai">Telegram</a></td>
+  </tr>
+</table>
+
+扫码加入 Hypit 微信群：
+
+<img alt="扫码加入 Hypit 微信群" src="./docs/public/wechat-group.jpg" width="320">
+
+## Launch 伙伴
+
+<table>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://openagents.org/blog/posts/2026-09-08-pilot-user-program-zh-hypit"><img alt="OpenAgents" src="./docs/public/openagents.png" width="180"></a>
+    </td>
+    <td>OpenAgents Workspace 是一个让你管理智能体的产品，它能让你随时随地调用在任何设备上运行的 Agent（手机 + 电脑端均可）。Agents 可以在其中协同合作，帮你完成任务、提升效率。现支持 Claude、Codex、Openclaw、Hermes 等 20 余种 agent 接入（详情：<a href="https://openagents.org">https://openagents.org</a>）</td>
+  </tr>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://monid.ai?fpr=alvin-45480b">
+        <picture>
+          <source media="(prefers-color-scheme: dark)" srcset="./docs/public/monid-logo-white.svg">
+          <img alt="Monid" src="./docs/public/monid-logo-blue.svg" width="150">
+        </picture>
+      </a>
+    </td>
+    <td>Monid 是 Agent 工具的 OpenRouter：一个 key、一个钱包、数百种工具，按调用计费。Hypit 可以把 Seedance 的视频、图像、语音和词级转写路由到 Monid。</td>
+  </tr>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://www.hiapi.ai"><img alt="HiAPI" src="./docs/public/hiapi.png" width="165"></a>
+    </td>
+    <td>HiAPI 是一个统一的 AI 图片、视频、音频和语言模型 API 平台，支持 GPT Image 2.5、Seedance 2.0、Veo 3.1、可灵、万相等主流模型。HiAPI 提供在线 Playground、Remote MCP 和 Agent Skills，可接入 Claude Code、Cursor 等 AI 编程工具。平台按量付费，无月费，新用户注册可获得免费体验积分。</td>
   </tr>
 </table>
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=hypit-ai/hypit&type=Date)](https://www.star-history.com/#hypit-ai/hypit&Date)
+<a href="https://www.star-history.com/?repos=hypit-ai%2Fhypit&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=hypit-ai/hypit&type=date&theme=dark&logscale&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=hypit-ai/hypit&type=date&logscale&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=hypit-ai/hypit&type=date&logscale&legend=top-left" />
+ </picture>
+</a>
+
+## 贡献者
+
+<a href="https://github.com/hypit-ai/hypit/graphs/contributors">
+  <img alt="Contributors" src="https://contrib.rocks/image?repo=hypit-ai/hypit">
+</a>
 
 ## 许可证
 

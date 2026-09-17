@@ -175,7 +175,7 @@ export async function runEnvironmentCommand(input: {
     if (runtimeProfile === undefined) throw new Error("programs requires a Runtime Profile");
     const profile = resolve(runtimeProfile);
     const host = await runtimeHost(profile);
-    if (args.action === "up") {
+    if (args.action === "up" || args.action === "prepare") {
       await host.prepare({ ...(args.endpoints === undefined ? {} : { endpoints: args.endpoints }), ...(reportPackageProgress === undefined ? {} : { onProgress: reportPackageProgress }) });
     }
     const controller = await runtimeController(profile);
@@ -185,6 +185,11 @@ export async function runEnvironmentCommand(input: {
         ...(args.maxWaitMs === undefined ? {} : { maxWaitMs: args.maxWaitMs }),
         ...(reportProgramProgress === undefined ? {} : { onProgress: reportProgramProgress }),
       })
+      : args.action === "prepare"
+        ? await controller.programs.prepare({
+          ...(args.endpoints === undefined ? {} : { endpoints: args.endpoints }),
+          ...(reportProgramProgress === undefined ? {} : { onProgress: reportProgramProgress }),
+        })
       : args.action === "down"
         ? await controller.programs.down(args.endpoints === undefined ? {} : { endpoints: args.endpoints })
         : await controller.programs.report(args.endpoints === undefined ? {} : { endpoints: args.endpoints });
@@ -199,7 +204,9 @@ export async function runEnvironmentCommand(input: {
     const urgent = relevant.filter(needsAttention);
     const shownPrograms = [...urgent, ...relevant.filter((item) => !needsAttention(item)).slice(0, Math.max(0, args.limit - urgent.length))];
     const omittedPrograms = relevant.length - shownPrograms.length;
-    const title = args.action === "up"
+    const title = args.action === "prepare"
+      ? lifecycleOk ? "External program resources prepared" : "External program preparation needs attention"
+      : args.action === "up"
       ? lifecycleOk ? "External programs ready" : "External programs need attention"
       : args.action === "down"
         ? lifecycleOk ? "External programs stopped" : "External program stop needs attention"
@@ -364,13 +371,10 @@ export async function runEnvironmentCommand(input: {
     }
     const credentialsControl = await (await runtimeHost(runtimeProfile)).openCredentials(args.endpoint);
     try {
-      let credentials = await credentialsControl.credentials(args.endpoint);
-      if (args.slot !== undefined) credentials = credentials.filter((item) => item.slot === args.slot);
-      if (credentials.length === 0) throw new Error(`Endpoint ${args.endpoint} has no matching credential`);
-      if (args.slot === undefined && credentials.length > 1 && args.action !== "status") {
-        throw new Error(`Endpoint ${args.endpoint} has several credentials; select one with --slot`);
-      }
       if (args.action === "status") {
+        let credentials = await credentialsControl.credentials(args.endpoint);
+        if (args.slot !== undefined) credentials = credentials.filter((item) => item.slot === args.slot);
+        if (credentials.length === 0) throw new Error(`Endpoint ${args.endpoint} has no matching credential`);
         const view = credentials.slice(0, args.limit).map((item) => ({
           endpoint: item.endpoint,
           slot: item.slot,
@@ -397,7 +401,15 @@ export async function runEnvironmentCommand(input: {
             : `login opens OAuth: ${item.acquisition.authorizationEndpoint}`;
           return `${item.slot}: ${item.configured ? "configured" : "missing"} · ${item.writable ? "writable" : "read-only"} · ${entry}`;
         }));
-      } else if (args.action === "login") {
+        return;
+      }
+      let credentials = await credentialsControl.describeCredentials(args.endpoint);
+      if (args.slot !== undefined) credentials = credentials.filter((item) => item.slot === args.slot);
+      if (credentials.length === 0) throw new Error(`Endpoint ${args.endpoint} has no matching credential`);
+      if (args.slot === undefined && credentials.length > 1) {
+        throw new Error(`Endpoint ${args.endpoint} has several credentials; select one with --slot`);
+      }
+      if (args.action === "login") {
         const [item] = credentials;
         if (item === undefined) throw new Error(`Endpoint ${args.endpoint} has no matching credential`);
         if (!item.writable) {
