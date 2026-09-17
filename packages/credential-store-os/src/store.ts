@@ -67,6 +67,8 @@ type WindowsCredentialResult = {
 
 const windowsScript = fileURLToPath(new URL("../runtime/windows-credential.ps1", import.meta.url));
 
+const windowsCredentialTimeoutMs = 10_000;
+
 function windowsCredential(
   operation: "read" | "write" | "delete",
   service: string,
@@ -84,8 +86,13 @@ function windowsCredential(
     const fail = (error: Error): void => {
       if (settled) return;
       settled = true;
+      clearTimeout(timer);
       reject(error);
     };
+    const timer = setTimeout(() => {
+      fail(new Error(`Windows credential ${operation} for ${account} timed out`));
+      child.kill("SIGKILL");
+    }, windowsCredentialTimeoutMs);
     child.on("error", fail);
     child.stdout.on("data", (chunk: Buffer) => {
       stdout += chunk.toString("utf8");
@@ -97,6 +104,7 @@ function windowsCredential(
     });
     child.on("close", (code) => {
       if (settled) return;
+      clearTimeout(timer);
       if (code !== 0) {
         fail(new Error(`Windows credential ${operation} for ${account} failed${stderr.trim().length === 0 ? "" : `: ${stderr.trim()}`}`));
         return;
@@ -142,8 +150,9 @@ function platformBackend(service: string) {
   }
   if (process.platform === "win32") return windowsBackend();
   // A Profile that selects this Store cannot be repaired by anything the user does here, and the
-  // other two Stores are the answer, so name them where the failure is read.
+  // other Stores are the answer, so name them where the failure is read.
   throw new Error("OS CredentialStore supports macOS and Windows only; select "
+    + "@hypit/credential-store-platform (platform locker, owner-private file on Linux), "
     + "@hypit/credential-store-file (owner-private local file) or @hypit/credential-store-env "
     + "(externally supplied value) in this Profile's credentials instead");
 }
