@@ -1,6 +1,6 @@
 {
   "name": "@hypit/hypit",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "homepage": "https://hypit.ai",
   "repository": {
     "type": "git",
@@ -232,6 +232,7 @@
     "@hypit/narrative": "workspace:*",
     "@hypit/performance": "workspace:*",
     "@hypit/performance-studio": "workspace:*",
+    "@hypit/pixverse": "workspace:*",
     "@hypit/program-space": "workspace:*",
     "@hypit/project-context-node": "workspace:*",
     "@hypit/protocol": "workspace:*",
@@ -279,6 +280,7 @@
     "@hypit/typography-track-studio": "workspace:*",
     "@hypit/visual-ir": "workspace:*",
     "@hypit/volcengine-matting": "workspace:*",
+    "@hypit/wan": "workspace:*",
     "@hypit/whisperx": "workspace:*",
     "@types/node": "24.10.1",
     "rollup": "4.62.4",
