@@ -296,6 +296,8 @@ async function bringUpOwned(
     const prepared = await prepareOwned(root, program, endpoint, onProgress);
     if (prepared.state.state !== "ready") return prepared;
     onProgress?.({ id: program.id, phase: "ready" });
+    // A usable tool may have no process. Preserve the preparation action in that case.
+    if (program.start === undefined) return prepared;
     return { ...base, action: "already-running", state: initial };
   }
   if (initial.state === "mismatch") {
@@ -504,11 +506,14 @@ export async function takeManagedProgramsDown(
       if (pid === undefined || !processAlive(pid)) {
         if (pid !== undefined) await rm(join(directory(dataRoot, program), "process.pid"), { force: true });
         const state = await program.probe();
-        return state.state === "down"
-          ? { ...base, action: "nothing-to-stop", state }
-          // Someone else's process, or one started by hand. Killing it is not this
-          // command's business; saying so is.
-          : { ...base, action: "not-ours", state, detail: `${program.id} is running without a Hypit process record` };
+        if (state.state === "down" || program.start === undefined) {
+          // Probe-only Programs describe installed tools or resources. Readiness means they are
+          // usable, not that a process exists for Hypit to stop.
+          return { ...base, action: "nothing-to-stop", state };
+        }
+        // Someone else's process, or one started by hand. Killing it is not this
+        // command's business; saying so is.
+        return { ...base, action: "not-ours", state, detail: `${program.id} is running without a Hypit process record` };
       }
       const term = await stopProcessTree(pid);
       if (term === "denied") {

@@ -1,5 +1,6 @@
+import { replaceFile } from "@hypit/file-io-node";
 import { randomUUID } from "node:crypto";
-import { mkdir, open, rename, rm, stat, unlink } from "node:fs/promises";
+import { mkdir, open, rm, stat, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { verifyCredentialRef } from "@hypit/runtime";
 import type { CredentialRef, CredentialValue, WritableCredentialStore } from "@hypit/runtime";
@@ -74,7 +75,7 @@ export class FileCredentialStore implements WritableCredentialStore {
     const file = await open(temporary, "wx", 0o600);
     try {
       try { await file.writeFile(`${contents}\n`, "utf8"); } finally { await file.close(); }
-      await rename(temporary, path);
+      await replaceFile(temporary, path);
     } finally { await rm(temporary, { force: true }); }
   }
 

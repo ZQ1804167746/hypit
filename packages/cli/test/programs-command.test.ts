@@ -65,6 +65,14 @@ test("programs dispatches lifecycle through the selected Runtime Controller", as
   ]);
 });
 
+test("programs without a Runtime Profile explains how to select one", async () => {
+  const projectRoot = await realpath(tmpdir());
+  await assert.rejects(
+    runCli(["programs", "status", "--workspace", projectRoot], io, distribution([])),
+    /programs requires a Runtime; run hypit runtime init, select one with runtime use, or pass --runtime <profile>/u,
+  );
+});
+
 test("programs accepts prepare, up, down and status", async () => {
   await assert.rejects(
     runCli(["programs", "restart", "/p/hypit.runtime.json"], io, distribution([])),
@@ -168,6 +176,29 @@ test("a declined stop stays visible even when the service is not Ready", async (
   const stopped = JSON.parse(output);
   assert.equal(stopped.ok, true);
   assert.equal(stopped.ready, false, "a successful stop is not service readiness");
+});
+
+test("programs down accepts a ready probe-only Program with nothing to stop", async () => {
+  const reports: CliManagedProgramReport[] = [{
+    id: "toolchain", endpoint: "media.local", action: "nothing-to-stop", state: { state: "ready" },
+  }];
+  let human = "";
+  await runCli(["programs", "down", "/p/profile.json"], {
+    write(text) { human += text; },
+  }, distribution([], reports));
+  assert.match(human, /No external programs to stop/u);
+
+  let output = "";
+  let exitCode: number | undefined;
+  await runCli(["programs", "down", "/p/profile.json", "--json"], {
+    write(text) { output += text; }, setExitCode(code) { exitCode = code; },
+  }, distribution([], reports));
+  const stopped = JSON.parse(output);
+  assert.equal(exitCode, undefined);
+  assert.equal(stopped.ok, true);
+  assert.equal(stopped.ready, true);
+  assert.equal(stopped.programCount, 1);
+  assert.equal(stopped.readyCount, 1);
 });
 
 test("Runtime headlines preserve a running Worker when Programs are down or stop fails", async () => {
@@ -354,6 +385,8 @@ test("Worker stop suggests Program control in the same project and Profile", asy
     write(text) { output += text; },
   }, distribution([]));
   assert.ok(output.includes(commandHint(["programs", "down"], { projectRoot, runtimeProfile })));
+  assert.match(output, /Managed Programs are unchanged/u);
+  assert.doesNotMatch(output, /were left running/u);
 });
 
 
