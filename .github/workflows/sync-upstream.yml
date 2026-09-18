@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Merge upstream into main
+        id: merge
         env:
           GH_TOKEN: ${{ secrets.SYNC_TOKEN || secrets.GITHUB_TOKEN }}
           HAS_PAT: ${{ secrets.SYNC_TOKEN != '' }}
@@ -57,6 +58,7 @@ jobs:
           merge_type=$(jq -r '.merge_type' <<<"$out")
           message=$(jq -r '.message' <<<"$out")
           echo "merge_type=${merge_type} :: ${message}"
+          echo "merge_type=${merge_type}" >> "$GITHUB_OUTPUT"
           {
             echo "### ✅ 同步完成"
             echo ""
@@ -69,14 +71,22 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_TYPE: ${{ steps.merge.outputs.merge_type }}
         run: |
           set -uo pipefail
-          # 上游若新增 workflow，同步后它在本 fork 里默认是启用的，会跟着 push 跑起来。
-          # 这里把除本文件外的所有 workflow 统一禁用，保持 fork 只做镜像、不跑上游 CI。
-          gh api "repos/${GITHUB_REPOSITORY}/actions/workflows" --paginate \
-            --jq '.workflows[] | select(.state=="active") | select(.path!=".github/workflows/sync-upstream.yml") | "\(.id)\t\(.path)"' \
-          | while IFS=$'\t' read -r id path; do
-              [ -z "$id" ] && continue
-              gh api --method PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/${id}/disable" \
-                && echo "已禁用上游带入的 workflow: ${path}"
-            done
+          # 上游新增的 workflow 被同步进来后默认是启用的，会跟着后续 push 在本 fork 里跑。
+          # GitHub 索引新 workflow 文件有几秒到几十秒延迟，紧跟合并扫一遍会漏掉它们，
+          # 所以真的合入了东西时多扫几轮；没合入就只快速确认一遍。
+          rounds=1
+          if [ "${MERGE_TYPE:-none}" != "none" ]; then rounds=4; fi
+
+          for r in $(seq 1 "$rounds"); do
+            if [ "$r" -gt 1 ]; then sleep 15; fi
+            gh api "repos/${GITHUB_REPOSITORY}/actions/workflows" --paginate \
+              --jq '.workflows[] | select(.state=="active") | select(.path!=".github/workflows/sync-upstream.yml") | "\(.id)\t\(.path)"' \
+            | while IFS=$'\t' read -r id path; do
+                [ -z "${id:-}" ] && continue
+                gh api --method PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/${id}/disable" \
+                  && echo "第 ${r} 轮：已禁用上游带入的 workflow ${path}"
+              done
+          done
