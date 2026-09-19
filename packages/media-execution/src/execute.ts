@@ -802,6 +802,7 @@ export async function executeRenderStillVideo(
       "select=eq(n\\,0)",
       "loop=loop=-1:size=1:start=0",
       `trim=start_frame=0:end_frame=${frames}`,
+      `settb=expr=${denominator}/${numerator}`,
       `setpts=N*${denominator}/(${numerator}*TB)`,
     ].join(",");
     let argv: string[];
@@ -1278,7 +1279,6 @@ export async function executeMuxProgramMedia(
         "-y", "-i", visualPath, "-i", audioPath,
         "-map", `0:${visual.index}`, "-map", "1:0",
         "-c:v", "copy", "-c:a", "aac", "-ar", "48000", "-ac", "2",
-        "-frames:v", String(need.visual.frameCount),
         "-movflags", "+faststart", output,
       ],
       timeoutMs: env.processTimeoutMs,

@@ -4,8 +4,10 @@ import type { CliIo } from "@hypit/cli";
 import { creationCommands, isCreationCommand, writeCreationHelp } from "./creation.js";
 import { isMediaCommand, mediaCommands, writeMediaHelp } from "./media.js";
 import { writeVocabularyHelp } from "./vocabulary.js";
+import { writeSnapshotHelp } from "./snapshot.js";
 import { writeCaptureHelp } from "./capture.js";
 import { runVersionCli, writeVersionHelp } from "./version.js";
+import { acceptSecretBytes } from "./secret-input.js";
 
 const argv = process.argv.slice(2);
 const json = argv.includes("--json");
@@ -26,22 +28,19 @@ async function readSecret(prompt: string): Promise<string> {
   }
   process.stderr.write(prompt);
   return await new Promise<string>((resolve, reject) => {
-    let value = "";
+    const raw: number[] = [];
     const finish = (error?: Error): void => {
       process.stdin.off("data", input);
       process.stdin.setRawMode(false);
       process.stdin.pause();
       process.stderr.write("\n");
-      if (error === undefined) resolve(value);
+      if (error === undefined) resolve(Buffer.from(raw).toString("utf8"));
       else reject(error);
     };
     const input = (chunk: Buffer): void => {
-      for (const byte of chunk) {
-        if (byte === 3) { finish(new Error("credential input cancelled")); return; }
-        if (byte === 10 || byte === 13) { finish(); return; }
-        if (byte === 8 || byte === 127) { value = value.slice(0, -1); continue; }
-        value += String.fromCharCode(byte);
-      }
+      const result = acceptSecretBytes(raw, chunk);
+      if (result === "cancelled") finish(new Error("credential input cancelled"));
+      if (result === "done") finish();
     };
     process.stdin.setRawMode(true);
     process.stdin.resume();
@@ -68,6 +67,7 @@ async function main(): Promise<void> {
     const topic = argv[0] === "help" ? argv[1]
       : argv[0] === "--help" ? undefined
       : argv.includes("--help") ? argv[0] : undefined;
+    if (topic === "snapshot") { writeSnapshotHelp(io); return; }
     if (topic === "version") { writeVersionHelp(io); return; }
     if (isCreationCommand(topic)) {
       writeCreationHelp(io, topic);
@@ -89,7 +89,7 @@ async function main(): Promise<void> {
     writeCliHelp(io, topic);
     if (topic === undefined) {
       io.write(`\nInstallation\n  version [--check] [--registry <url>] [--json]\n\nCreation tools (one request through the selected Runtime Profile, no Build)\n${
-        creationCommands.map((item) => `  ${item}`).join("\n")}\n  hypit help <tool> for each\n`
+        [...creationCommands, "snapshot"].map((item) => `  ${item}`).join("\n")}\n  hypit help <tool> for each\n`
         + `\nStudio\n  studio --run <build.svrun>\n  hypit studio --help for session options\n\nPreparation (local tools and project files)\n  media ${mediaCommands.join(" | ")}\n  capture screenshot | run | install-browser\n  vocabulary\n  hypit help media, hypit help capture, hypit help vocabulary\n`);
     }
     return;

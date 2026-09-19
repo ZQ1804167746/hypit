@@ -162,7 +162,7 @@ illustration. The complete runnable project is `examples/podcast/`; the commands
 
   <!-- 1. Script: the semantic truth -->
   <script id="story">
-    <opening><HOST>Meaning @{demo} becomes the source @{/demo}.</opening>
+    <opening><HOST>Meaning @{demo}becomes the source.@{/demo}</opening>
   </script>
 
   <!-- 2. Generation: Seedance talking head + standalone video -->
@@ -179,11 +179,11 @@ illustration. The complete runnable project is `examples/podcast/`; the commands
   <gpt:Image id="studio-scene" prompt={scene-look} aspect-ratio="9:16" resolution="2K"/>
   <seedance:ReferenceVideo id="take" model="mini"
     prompt={direction} duration="5" generate-audio="true">
-    <seedance:Reference image={studio-scene.image}/>
+    <seedance:Reference image={studio-scene.image} person-reference="true"/>
   </seedance:ReferenceVideo>
   <seedance:ReferenceVideo id="motion" model="mini"
     prompt={direction} duration="5">
-    <seedance:Reference image={studio-scene.image}/>
+    <seedance:Reference image={studio-scene.image} person-reference="true"/>
   </seedance:ReferenceVideo>
 
   <space:Canvas id="vertical" width="1080" height="1920"/>

@@ -15,6 +15,7 @@ import type { ServedFile } from "./compile.js";
 import type { StudioDomain } from "./domain.js";
 import type { StudioCompanionRegistry } from "./studio-registry.js";
 import { loadStudioRun } from "./run.js";
+import { allowsStudioMutation } from "./mutation-origin.js";
 import { parameterAuthorValue, parameterOption, serializeParameterValue, serializeAttributeGroup, validateParameterValue } from "./parameter-values.js";
 import { readStudioSession } from "./session.js";
 import type { Range, StudioFailure, StudioLibraryRequest, StudioLibraryView, StudioMutation, StudioSnapshot } from "./shared.js";
@@ -80,6 +81,8 @@ class StudioMutationRejected extends Error {}
 
 export function studioPlugin(options: StudioPluginOptions): Plugin {
   let snapshot: StudioSnapshot | undefined;
+  let visualHtml: string | undefined;
+  let visualDocument: import("@hypit/hyperframes").HyperframesDocument | undefined;
   let failure: StudioFailure | undefined;
   let material: ReadonlyMap<string, ServedFile> = new Map();
   let revision = 0;
@@ -158,6 +161,8 @@ export function studioPlugin(options: StudioPluginOptions): Plugin {
       if (attempt !== requestedRevision) return;
       revision = attempt;
       snapshot = result.snapshot;
+      visualHtml = result.visualHtml;
+      visualDocument = result.document;
       material = result.material;
       failure = undefined;
       if (notify) server?.ws.send({ type: "custom", event: "studio:snapshot", data: snapshot });
@@ -473,6 +478,10 @@ export function studioPlugin(options: StudioPluginOptions): Plugin {
       value.middlewares.use((request, response, next) => {
         const url = new URL(request.url ?? "/", "http://studio.hypit.local");
         if (request.method === "PUT" && url.pathname === "/__studio/source") {
+          if (!allowsStudioMutation(request.headers)) {
+            json(response, 403, { error: "Cross-origin Studio mutations are prohibited." });
+            return;
+          }
           void (async () => {
             let acquired = false;
             try {
@@ -524,6 +533,10 @@ export function studioPlugin(options: StudioPluginOptions): Plugin {
           return;
         }
         if (request.method === "PUT" && url.pathname === "/__studio/artifact-name") {
+          if (!allowsStudioMutation(request.headers)) {
+            json(response, 403, { error: "Cross-origin Studio mutations are prohibited." });
+            return;
+          }
           void (async () => {
             try {
               const chunks: Buffer[] = [];
@@ -546,6 +559,10 @@ export function studioPlugin(options: StudioPluginOptions): Plugin {
           return;
         }
         if (request.method === "POST" && url.pathname === "/__studio/mutation") {
+          if (!allowsStudioMutation(request.headers)) {
+            json(response, 403, { error: "Cross-origin Studio mutations are prohibited." });
+            return;
+          }
           void (async () => {
             try {
               const chunks: Buffer[] = [];
@@ -578,6 +595,28 @@ export function studioPlugin(options: StudioPluginOptions): Plugin {
         }
         if (request.method !== "GET" && request.method !== "HEAD") {
           next();
+          return;
+        }
+        if (url.pathname === "/__studio/visual.html" || url.pathname === "/__studio/document") {
+          void (async () => {
+            if (timer !== undefined || publishing > 0) {
+              json(response, 409, { error: "Studio is compiling a Source change; capture after the updated preview is ready." });
+              return;
+            }
+            if (snapshot === undefined && failure === undefined) await publish(++requestedRevision);
+            if (failure !== undefined || visualHtml === undefined) {
+              json(response, 500, failure ?? { error: "Studio has no compiled picture." });
+              return;
+            }
+            if (url.pathname === "/__studio/document") {
+              json(response, 200, visualDocument);
+              return;
+            }
+            response.statusCode = 200;
+            response.setHeader("content-type", "text/html; charset=utf-8");
+            response.setHeader("cache-control", "no-store");
+            response.end(request.method === "HEAD" ? undefined : visualHtml);
+          })();
           return;
         }
         if (url.pathname === "/__studio/session") {

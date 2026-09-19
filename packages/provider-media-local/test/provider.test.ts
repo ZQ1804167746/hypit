@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { artifactTypes } from "@hypit/artifact";
-import { mediaTypes, sealRenderedVisual, synchronizedMediaSampleFrames, verifyMediaInspection, verifyMuxedMedia, verifySynchronizedMedia, verifyTimelineAudio } from "@hypit/media";
+import { mediaTypes, sealRenderedVisual, sealTimelineAudio, synchronizedMediaSampleFrames, verifyMediaInspection, verifyMuxedMedia, verifySynchronizedMedia, verifyTimelineAudio } from "@hypit/media";
 import type { MediaAudioStream, MediaInspection, MuxedMedia, SynchronizedMedia, TimelineAudio } from "@hypit/media";
 import { assertSpeechEvidenceAudioIdentity, speechTypes } from "@hypit/speech";
 import type { SpeechEvidenceAudio } from "@hypit/speech";
@@ -671,6 +671,26 @@ test("local media Provider transforms A/V and extracts ordinary audio and frame 
     const spreadInspection = await inspectArtifact(resources, spread);
     assert.equal(spreadInspection.streams.length, 1);
     assert.equal(spreadInspection.streams[0]?.decodedUnitCount, 15, "two pictures spread over the same frame count");
+    const twentyFourSpread = await executeArtifact(need(
+      "need:render-still-24fps-spread",
+      mediaPipelineCapabilities.renderStill,
+      artifactTypes.blob,
+      canonicalize({
+        request: {
+          frameRate: { numerator: 24, denominator: 1 },
+          frameCount: 144,
+          output: { container: "mp4", codec: "h264", pixelFormat: "yuv420p" },
+          segments: [
+            { startFrame: 0, endFrameExclusive: 24, source: extractedFrame },
+            { startFrame: 24, endFrameExclusive: 96, source: extractedFrame },
+            { startFrame: 96, endFrameExclusive: 144, source: extractedFrame },
+          ],
+        },
+      }),
+    ));
+    const twentyFourInspection = await inspectArtifact(resources, twentyFourSpread);
+    assert.equal(twentyFourInspection.streams[0]?.decodedUnitCount, 144,
+      "three Still segments at 24 fps must preserve the complete frame domain");
     const stillSelection = selectMediaStreams(stillInspection, sealMediaSelectionRequest({
       video: { mode: "primary-moving" },
       audio: { mode: "none" },
@@ -806,6 +826,58 @@ test("local media Provider renders one frame-domain audio plan and muxes exactly
       "AAC packet duration/padding metadata must preserve the authoritative presentation span");
     assert.ok(audios[0]?.kind === "audio" && audios[0].decodedSampleFrames >= 48_000,
       "AAC coding frames may include padding, but must cover the complete presentation span");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("local media Provider preserves the audio tail for a 30000/1001 frame domain", {
+  skip: !hasMediaBinaries,
+}, async () => {
+  const root = await mkdtemp(join(tmpdir(), "hypit-provider-media-ntsc-mux-"));
+  try {
+    const visualPath = join(root, "visual.mp4");
+    const audioPath = join(root, "audio.wav");
+    const frameRate = { numerator: 30_000, denominator: 1_001 };
+    const frameCount = 913;
+    const sampleFrames = 1_462_261;
+    await run("ffmpeg", [
+      "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc2=s=160x96:r=30000/1001",
+      "-frames:v", String(frameCount), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-an", visualPath,
+    ]);
+    await run("ffmpeg", [
+      "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000",
+      "-af", `atrim=end_sample=${sampleFrames}`, "-ac", "2", "-c:a", "pcm_s16le", audioPath,
+    ]);
+
+    const resources = new MemoryResourceStore();
+    const [audioArtifact, visualArtifact] = await Promise.all([
+      resources.put(await readFile(audioPath), "audio/wav"),
+      resources.put(await readFile(visualPath), "video/mp4"),
+    ]);
+    const audio = sealTimelineAudio({ artifact: audioArtifact, sampleFrames });
+    const visual = sealRenderedVisual({
+      frameRate,
+      frameCount,
+      canvas: { width: 160, height: 96 },
+      artifact: visualArtifact,
+    });
+    const muxValue = await fulfillInline(resources, need(
+      "need:mux-ntsc-program-media",
+      mediaPipelineCapabilities.mux,
+      mediaTypes.muxed,
+      canonicalize({ visual, audio }),
+    ));
+    verifyMuxedMedia(muxValue);
+    const muxed = muxValue as unknown as MuxedMedia;
+    const inspection = await inspectArtifact(resources, muxed.artifact);
+    const audioStream = inspection.streams.find((stream): stream is MediaAudioStream => stream.kind === "audio");
+    assert.ok(audioStream);
+    const presentedSamples = presentationSampleFrames(audioStream);
+    assert.ok(Math.abs(presentedSamples - sampleFrames) < 64,
+      `AAC presentation span must retain the complete NTSC timeline audio (delta ${presentedSamples - sampleFrames})`);
+    assert.ok(audioStream.decodedSampleFrames >= sampleFrames,
+      "AAC coding frames must cover the complete NTSC timeline audio");
   } finally {
     await rm(root, { recursive: true, force: true });
   }
