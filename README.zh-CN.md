@@ -211,14 +211,14 @@ Agent 会检查环境，索要这条视频需要的凭据，生成素材并构�
 <table>
   <tr>
     <td width="220" align="center">
-      <a href="https://watcha.cn">
+      <a href="https://watcha.cn/r/geIiJJ">
         <picture>
           <source media="(prefers-color-scheme: dark)" srcset="./docs/public/watcha-dark.png">
           <img alt="观猹" src="./docs/public/watcha-light.png" width="170">
         </picture>
       </a>
     </td>
-    <td><a href="https://watcha.cn">观猹</a>是一个专为 AI 开发者打造的创新产品生态与社区，致力于连接优秀产品与高质量用户，助力每一个想法从 Demo 走向真实落地。从产品发现与真实反馈起步，观猹提供发布、分发与声誉追踪等支持，全方位陪伴开发者完成从产品上线到首批用户获取的全过程。</td>
+    <td><a href="https://watcha.cn/r/geIiJJ">观猹</a>是一个专为 AI 开发者打造的创新产品生态与社区，致力于连接优秀产品与高质量用户，助力每一个想法从 Demo 走向真实落地。从产品发现与真实反馈起步，观猹提供发布、分发与声誉追踪等支持，全方位陪伴开发者完成从产品上线到首批用户获取的全过程。</td>
   </tr>
   <tr>
     <td width="220" align="center">
@@ -265,6 +265,12 @@ Agent 会检查环境，索要这条视频需要的凭据，生成素材并构�
       <a href="https://api.pollo.ai/?utm_source=hypit"><img alt="Pollo API" src="./docs/public/pollo.jpg" width="120"></a>
     </td>
     <td><a href="https://api.pollo.ai/?utm_source=hypit">Pollo API</a> 通过单个 API 为开发者提供 300 多个 AI 图片与视频模型，价格具备竞争力。一个 API key 即可接入多家模型服务商，请求规模从 10 次到 10000 次以上均可承载。</td>
+  </tr>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://beatapi.io"><img alt="BeatAPI" src="./docs/public/beatapi.png" width="165"></a>
+    </td>
+    <td><a href="https://beatapi.io">BeatAPI</a> 是面向各类 Agent 的专业能力层，提供 AI 模型、真实世界数据、可直接调用的任务能力和专业工作空间，帮助 Agent 完成真实世界的任务。</td>
   </tr>
 </table>
 

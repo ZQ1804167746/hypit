@@ -215,14 +215,14 @@ commands and the repository layout.
 <table>
   <tr>
     <td width="220" align="center">
-      <a href="https://watcha.cn">
+      <a href="https://watcha.cn/r/geIiJJ">
         <picture>
           <source media="(prefers-color-scheme: dark)" srcset="./docs/public/watcha-dark.png">
           <img alt="Watcha" src="./docs/public/watcha-light.png" width="170">
         </picture>
       </a>
     </td>
-    <td><a href="https://watcha.cn">Watcha</a> is an innovative ecosystem and community built for AI builders, connecting great products with high-quality users to turn every Demo into reality. Starting from AI product discovery and genuine feedback, Watcha provides product publishing, distribution, and reputation tracking to support builders from launch to early adoption.</td>
+    <td><a href="https://watcha.cn/r/geIiJJ">Watcha</a> is an innovative ecosystem and community built for AI builders, connecting great products with high-quality users to turn every Demo into reality. Starting from AI product discovery and genuine feedback, Watcha provides product publishing, distribution, and reputation tracking to support builders from launch to early adoption.</td>
   </tr>
   <tr>
     <td width="220" align="center">
@@ -269,6 +269,12 @@ commands and the repository layout.
       <a href="https://api.pollo.ai/?utm_source=hypit"><img alt="Pollo API" src="./docs/public/pollo.jpg" width="120"></a>
     </td>
     <td><a href="https://api.pollo.ai/?utm_source=hypit">Pollo API</a> gives developers access to 300+ AI image and video models through a single API, with competitive rates. One API key connects you to multiple model providers and scales from 10 to 10,000+ requests.</td>
+  </tr>
+  <tr>
+    <td width="220" align="center">
+      <a href="https://beatapi.io"><img alt="BeatAPI" src="./docs/public/beatapi.png" width="165"></a>
+    </td>
+    <td><a href="https://beatapi.io">BeatAPI</a> is the professional capability layer for any agent. We provide AI models, real-world data, task-ready capabilities, and professional workspaces that help agents complete real-world tasks.</td>
   </tr>
 </table>
 
